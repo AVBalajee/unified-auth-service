@@ -1,152 +1,174 @@
-# Unified Auth Service Fullstack
+<h1 align="center">🔐 Unified Auth Service 🚀</h1>
 
-Enterprise-ready fullstack sample for a **Unified Auth Service** with:
+<p align="center">
+  <img src="https://img.shields.io/badge/Microservice-Auth%20Service-blue?style=for-the-badge" />
+  <img src="https://img.shields.io/badge/Status-Active-success?style=for-the-badge" />
+  <img src="https://img.shields.io/badge/Security-JWT%20%7C%20OAuth2-green?style=for-the-badge" />
+</p>
 
-- Spring Boot 3 + Java 17 backend
-- React + Vite frontend
-- JWT access and refresh tokens
-- RBAC with roles and permissions
-- Multi-tenant isolation
-- Redis-backed rate limiting, refresh token caching, and JWT blacklist
-- OAuth2-style **client credentials** token endpoint for machine-to-machine access
-- PostgreSQL persistence
-- Docker and docker-compose setup
-- Audit logging and health checks
+<p align="center">
+  <em>
+    Enterprise-grade <b>Authentication & Authorization System</b> built using <b>Spring Boot, JWT, OAuth2, Redis, PostgreSQL</b><br>
+    Designed for <b>Security 🔐 | Scalability ⚡ | Multi-Tenant Support 🏦</b>
+  </em>
+</p>
 
-## Project Structure
+---
 
-```text
-unified-auth-service-fullstack/
-├── backend/
-├── frontend/
-├── docker-compose.yml
-└── README.md
+# 🧠 System Architecture
+
+```
+Frontend → API Gateway → Auth Service → PostgreSQL
+                                ↓
+                              Redis
+                                ↓
+                           JWT Validation
 ```
 
-## Features Implemented
+---
 
-### Backend
-- User login with tenant-aware authentication
-- JWT access token and refresh token flow
-- Logout with access-token blacklist + refresh-token revocation
-- OAuth2-like `client_credentials` token endpoint for system clients
-- Spring Security with method-level authorization
-- Multi-tenant isolation using `tenantId` in token + request header enforcement
-- Role/permission management
-- Redis rate limiting for login and token endpoints
-- Audit logs for authentication and admin operations
-- Seed data for demo login and clients
+# 🚀 Setup
 
-### Frontend
-- Login screen
-- Dashboard showing current user, tenant, roles, permissions, and token expiry
-- Admin users page to create users and list users in current tenant
-- OAuth client token test page for machine-to-machine flow
-- Protected routes and token refresh handling
-
-## Demo Credentials
-
-After startup, the seed users are:
-
-- **Platform Admin**
-  - username: `platformadmin`
-  - password: `Admin@123`
-  - tenant: `PLATFORM`
-- **Bank A Trade Admin**
-  - username: `tradeadmin`
-  - password: `Admin@123`
-  - tenant: `BANK_A`
-- **Bank A Operations User**
-  - username: `opsuser`
-  - password: `Admin@123`
-  - tenant: `BANK_A`
-- **Bank B Viewer**
-  - username: `viewerb`
-  - password: `Admin@123`
-  - tenant: `BANK_B`
-
-Seed OAuth client:
-
-- clientId: `trade-service`
-- clientSecret: `trade-secret`
-- tenant: `BANK_A`
-- scopes: `read write approve`
-
-## Run with Docker
-
-From the project root:
-
+## Start Docker
 ```bash
-docker compose up --build
+docker compose up -d
 ```
 
-Services:
-- Backend: `http://localhost:8080`
-- Frontend: `http://localhost:5173`
-- PostgreSQL: `localhost:5432`
-- Redis: `localhost:6379`
-
-## Run Backend Locally
-
+## Run Backend
 ```bash
 cd backend
 mvn spring-boot:run
 ```
 
-Environment variables supported:
-
-```bash
-DB_HOST=localhost
-DB_PORT=5432
-DB_NAME=authdb
-DB_USERNAME=postgres
-DB_PASSWORD=postgres
-REDIS_HOST=localhost
-REDIS_PORT=6379
-JWT_SECRET=change-this-secret-key-change-this-secret-key
-JWT_ACCESS_MINUTES=15
-JWT_REFRESH_DAYS=7
-```
-
-## Run Frontend Locally
-
+## Run Frontend
 ```bash
 cd frontend
 npm install
 npm run dev
 ```
 
-The frontend uses `VITE_API_BASE_URL`, defaulting to `http://localhost:8080`.
+---
 
-## Important Request Headers
+# 🔑 Features
 
-Protected API requests use:
+- 🔐 JWT-based Authentication  
+- 🔁 Refresh Token Mechanism  
+- 🧑‍🤝‍🧑 Role-Based Access Control (RBAC)  
+- 🏦 Multi-Tenant Isolation  
+- ⚡ Redis Caching & Rate Limiting  
+- 🔗 OAuth2 Client Support  
+- 📊 Audit Logging  
 
-```text
-Authorization: Bearer <token>
-X-Tenant-ID: <tenant code>
+---
+
+# 📡 API Endpoints
+
+## 🟢 Login
+POST /api/auth/login
+
+### Request
+```json
+{
+  "username": "admin",
+  "password": "admin123",
+  "tenantCode": "BANK_A"
+}
 ```
 
-## Main APIs
+### Response
+```json
+{
+  "accessToken": "jwt_token_here",
+  "refreshToken": "refresh_token_here",
+  "tokenType": "Bearer",
+  "expiresIn": 3600
+}
+```
 
-### Auth
-- `POST /api/auth/login`
-- `POST /api/auth/refresh`
-- `POST /api/auth/logout`
-- `GET /api/auth/me`
+---
 
-### OAuth2-style Client Credentials
-- `POST /api/oauth2/token`
+## 🔁 Refresh Token
+POST /api/auth/refresh
 
-### Admin
-- `GET /api/users`
-- `POST /api/users`
-- `GET /api/roles`
-- `GET /api/tenants`
-- `POST /api/oauth2/clients`
+### Request
+```json
+{
+  "refreshToken": "refresh_token_here"
+}
+```
 
-## Notes
+---
 
-- This project is intentionally designed as a strong end-to-end reference implementation for interview, portfolio, and learning use.
-- The OAuth2 part is implemented as a secure **client credentials** token issuance flow for service-to-service integration. Browser login remains username/password + JWT.
-- For production, you can extend it with OpenID Connect, MFA, email verification, and API gateway integration.
+## 🔴 Logout
+POST /api/auth/logout
+
+---
+
+## 👥 Create User
+POST /api/users
+
+### Request
+```json
+{
+  "username": "balajee",
+  "password": "Password@123",
+  "role": "ADMIN",
+  "tenantCode": "BANK_A"
+}
+```
+
+---
+
+## 📊 Get Users
+GET /api/users
+
+---
+
+## 🔗 OAuth Token
+POST /oauth/token
+
+---
+
+# 🏗 Multi-Tenant Behavior
+
+- Each user belongs to a specific tenant  
+- BANK_A cannot access BANK_B data  
+- Tenant validation enforced in every request  
+- TenantId embedded inside JWT  
+
+---
+
+# 🔁 Token Flow
+
+```
+Login → Access Token → API Access
+      → Refresh Token → New Access Token
+```
+
+---
+
+# ⚡ Redis Usage
+
+- 🔁 Refresh token storage  
+- 🚫 Token blacklist (logout)  
+- ⚡ Rate limiting (login protection)  
+
+---
+
+# 🧪 Curl Test
+
+```bash
+curl -X POST http://localhost:8080/api/auth/login \
+-H "Content-Type: application/json" \
+-d '{
+  "username": "admin",
+  "password": "admin123",
+  "tenantCode": "BANK_A"
+}'
+```
+
+---
+
+# 👨‍💻 Author
+
+**[Balajee A V](https://avbalajee.vercel.app)**
